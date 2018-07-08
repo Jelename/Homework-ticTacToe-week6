@@ -30,7 +30,6 @@ __decorate([
     __metadata("design:type", String)
 ], Game.prototype, "name", void 0);
 __decorate([
-    class_validator_1.IsString(),
     typeorm_1.Column('text', { nullable: false }),
     __metadata("design:type", String)
 ], Game.prototype, "color", void 0);

@@ -1,11 +1,11 @@
-import { JsonController, Get, Body, Post, HttpCode, Put, Param, NotFoundError } from 'routing-controllers'
+import { JsonController, Get, Body, Post, HttpCode, Put, Param, NotFoundError, BadRequestError } from 'routing-controllers';
 import Game, { colorArr } from './entity';
 
-// const moves = (board1, board2) => 
-//   board1
-//     .map((row, y) => row.filter((cell, x) => board2[y][x] !== cell))
-//     .reduce((a, b) => a.concat(b))
-//     .length
+const moves = (board1, board2) => 
+  board1
+    .map((row, y) => row.filter((cell, x) => board2[y][x] !== cell))
+    .reduce((a, b) => a.concat(b))
+    .length
 
 @JsonController()
 export default class GameController {
@@ -16,23 +16,26 @@ export default class GameController {
         return { games }
     }
 
-    @Post('/games') //for creating a new game
+    @Post('/games') //create a new game
     @HttpCode(201)
         createGame(@Body() game: Game) {
-            const newColor = colorArr[Math.floor(Math.random() * colorArr.length)];
-            game.color = newColor;
-            return game.save();
+            const newColor = colorArr[Math.floor(Math.random() * colorArr.length)]
+            game.color = newColor
+            return game.save()
         }
 
-    @Put('/games/:id') //for editing the game
+    @Put('/games/:id') //edit game
     async updateGame(
         @Param('id') id: number,
         @Body() update: Partial<Game>
         ) {
         const game = await Game.findOne(id)
-        if (!game) throw new NotFoundError('Cannot find game')
+        if (!game) throw new NotFoundError('Cannot find this game')
 
-        if (update.color !== undefined && colorArr.indexOf(update.color) < 0) throw new NotFoundError('Please choose another color')
+        const color = update.color
+        if (color !== undefined && colorArr.indexOf(color) < 0) throw new BadRequestError('Choose another color')
+
+        if (moves(game.board, update.board) > 1) throw new BadRequestError('You are allowed to make one move at a time')
 
         return Game.merge(game, update).save()
         }
