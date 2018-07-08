@@ -19,8 +19,7 @@ export default class Game extends BaseEntity {
     @Column('text', {nullable:false})
     name: string
 
-    //@IsString()
-    //@IsIn(colorArr)
+    @IsString()
     @Column('text', {nullable:false})
     color: string
 
